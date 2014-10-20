@@ -1,0 +1,134 @@
+﻿@model List<Foro.Models.Topic>
+
+@{
+    ViewBag.Title = "Listado de Topics";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Listado de Topics</h2>
+@if (Request.IsAuthenticated){
+<input type="button" class="btn btn-primary" value="Crear Topic" onclick="VerCrearTopic()">
+}
+<table border="1" class="uitable"> 
+ @foreach (var item in Model)
+    {
+        <tr class="uitable">
+           <td colspan="4" >
+            <h4 class="audit" onclick="Redirect(@item.Id)">@item.Tittle</h4>
+           </td>
+        </tr> 
+        <tr>
+            <th>
+                Fecha de Creación
+            </th>
+            <th>
+                KeyWords
+            </th>
+            <th>
+                Contenido
+            </th>
+            <th>
+                Usuario
+            </th>
+        </tr>
+        <tr class="odd">
+            <td>
+                @item.CreationDate
+            </td>
+            <td>
+                @item.KeyWords
+            </td>
+            <td>
+                @item.Content
+            </td>
+            <td>
+                @item.UserId
+            </td>
+        </tr>
+    } 
+</table>
+<div id="dialogTopic">
+<table >
+        <tr>
+            <td style="padding: 5px">
+                <label>Titulo</label>
+            </td>
+            <td style="padding: 5px">
+                <input type="text" id="txtTittle" required="required"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 5px">
+                <label>KeyWords</label>
+            </td>
+            <td style="padding: 5px">
+                <input type="text" id="txtKeyWords" title="agregar los keywords separados por ','" required="required"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 5px">
+                <label>Contenido</label>
+            </td>
+            <td style="padding: 5px">
+                <textarea id="txtContenido" required="required"></textarea>
+            </td>
+        </tr>
+<tr>
+<td>
+<input type="button" class="btn btn-primary" value="Crear" onclick="CrearTopic()">
+</td>
+</tr>
+    </table>
+</div>
+</script>
+
+<script> 
+    function VerCrearTopic() {
+        $('#dialogTopic').dialog('open');
+    }
+    $(document).ready(function () {
+        jQuery("#dialogTopic").dialog({
+            title: "Ingreso de Topic",
+            autoOpen: false,
+            width: 400,
+            height: 250,
+            minHeight: 250,
+            minWidth: 400,
+            modal: true,
+            resizable: true,
+            open: function () {
+                jQuery('.ui-widget-overlay').bind('click', function () {
+                    jQuery('#dialogTopic').dialog('close');
+                });
+            }
+        });
+
+    });
+    function CrearTopic() {
+        var _Tittle = $('#txtTittle').val();
+        var _KeyWords = $('#txtKeyWords').val();
+        var _Content = $('#txtContenido').val();
+        if (_Tittle == "") { alert("Titulo requerido"); return;}
+        if (_KeyWords == "") { alert("KeyWords requeridos"); return; } 
+        if (_Content == "") { alert("Contenido requerido"); return; } 
+        var _url = (document.URL.toLowerCase().indexOf("foroapi") == -1 ? "ForoApi/" : "");
+
+        var Topic = { Tittle: _Tittle, KeyWords: _KeyWords, Content: _Content };
+        $.ajax({
+            url: _url + "CrearTopic",
+            data: { Topic: Topic },
+            type: "POST",
+            dataType: "json"
+        })
+            .success(function (data, status, headers, config) {
+                alert(data);
+                window.location.href = "/ForoApi";
+            })
+            .error(function (data, status, headers, config) {
+                // alert(data);
+            });
+    }
+    function Redirect(Id) {
+        window.location.href = "/ForoApi/Topic" + "?Id=" + Id;
+    }
+</script>
